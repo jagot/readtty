@@ -1,0 +1,25 @@
+#+TITLE: readtty
+#+AUTHOR: Stefanos Carlström
+#+EMAIL: stefanos.carlstrom@gmail.com
+
+A small utility for reading from a tty (or any device file, or any
+file for that matter), until a specified pattern is matched. The
+stream is echoed on STDOUT. I use it to read plots from a Tektronix
+2211 oscilloscope, which emits plot commands in [[https://en.wikipedia.org/wiki/HP-GL][HP-GL format]] on a
+RS232 port:
+#+BEGIN_SRC sh
+  function osc {
+      rm -f $1.hpgl
+      readtty /dev/tty.usbserial ";DF;" | pv > $1.hpgl
+      rm -f $1.eps
+      cat $1.hpgl | hp2xx -q -f- -m eps -a 2 > $1.eps
+  }
+
+  # Usage
+  osc plot
+  # Gives plot.eps file in current directory
+#+END_SRC
+[[file:./wave.png]]
+
+The conversion from HP-GL to EPS is done using [[https://www.gnu.org/software/hp2xx/][hp2xx]], a [[https://brew.sh][Homebrew]]
+formula for which exists at [[https://github.com/jagot/homebrew-jagot/blob/master/Formula/hp2xx.rb][jagot/hp2xx]].
